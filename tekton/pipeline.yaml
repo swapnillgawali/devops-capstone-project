@@ -6,7 +6,7 @@
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
-metadata:  
+metadata:
   name: cd-pipeline
 spec:
   workspaces:
@@ -25,7 +25,7 @@ spec:
 
     - name: clone
       workspaces:
-        - name: output
+        - name: source
           workspace: pipeline-workspace          
       taskRef:
         name: git-clone
@@ -37,16 +37,16 @@ spec:
       runAfter:
         - init
 
-    - name: lint
+    - name: tests
       workspaces:
         - name: source
           workspace: pipeline-workspace
       taskRef:
-        name: flake8
+        name: nose
       params:
-        - name: image
-          value: python:3.9-slim
-        - name: args
-          value: ["--count", "--max-complexity=10", "--max-line-length=127", "--statistics"]
+      - name: database_uri
+        value: "sqlite:///test.db"
+      - name: args
+        value: "-v --with-spec --spec-color"
       runAfter:
         - clone
